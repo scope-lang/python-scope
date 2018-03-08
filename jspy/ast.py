@@ -313,7 +313,7 @@ class Block(Node):
         return result
 
     def get_declared_vars(self):
-        return set_union(s.get_declared_vars() for s in self.statements)
+        return []#set_union(s.get_declared_vars() for s in self.statements)
 
 
 class VariableDeclarationList(Node):
@@ -366,8 +366,7 @@ class IfStatement(Node):
             return self.false_statement.eval(context)
 
     def get_declared_vars(self):
-        return set_union([self.true_statement.get_declared_vars(),
-                          self.false_statement.get_declared_vars()])
+        return []
 
 
 class WhileStatement(Node):
@@ -375,11 +374,12 @@ class WhileStatement(Node):
 
     def eval(self, context):
         result_value = js.EMPTY
+        cntx=js.ExecutionContext(dict(), parent=context)
         while True:
-            condition_value = js.get_value(self.condition.eval(context))
+            condition_value = js.get_value(self.condition.eval(cntx))
             if not condition_value:
                 return js.Completion(js.NORMAL, result_value, js.EMPTY)
-            stmt = self.statement.eval(context)
+            stmt = self.statement.eval(cntx)
             if stmt.value is not js.EMPTY:
                 result_value = stmt.value
             if stmt.type is js.BREAK:
@@ -399,6 +399,7 @@ class ForStatement(Node):
         firstst = self.first.eval(cntx)
         while True:
             condition_value = js.get_value(self.condition.eval(cntx))
+            #print("COND",condition_value)
             if not condition_value:
                 return js.Completion(js.NORMAL, result_value, js.EMPTY)
             stmt = self.statement.eval(cntx)
@@ -411,7 +412,7 @@ class ForStatement(Node):
             nextst = self.then.eval(cntx)
 
     def get_declared_vars(self):
-        return self.statement.get_declared_vars()
+        return []
 
 
 class DoWhileStatement(Node):

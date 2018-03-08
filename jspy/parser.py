@@ -120,16 +120,21 @@ class Parser(object):
     #
     def p_statement(self, p):
         """statement : statement_no_semicolon
+                     | statement_n_v
+                     | statement_n_v SEMICOLON
                      | statement_no_semicolon SEMICOLON"""
         p[0] = p[1]
 
+    def p_statement_n_v(self, p):
+        """statement_n_v : block
+                     | if_statement
+                     | iteration_statement"""
+        p[0] = p[1]
+
     def p_statement_no_semicolon(self, p):
-        """statement_no_semicolon : block
-                     | variable_statement
+        """statement_no_semicolon : variable_statement
                      | empty_statement
                      | expression_statement
-                     | if_statement
-                     | iteration_statement
                      | continue_statement
                      | break_statement
                      | return_statement
@@ -153,6 +158,8 @@ class Parser(object):
         """block_value : LBRACE statement_list_v_opt RBRACE"""
         ls=p[2]
         if len(ls)>0:
+            print(ls[0])
+            print("VDEAL")
             ls[len(ls)-1]=ast.ReturnStatement(expression=ls[len(ls)-1])
         p[0] = ast.Block(statements=ls)
         #print("value deal")

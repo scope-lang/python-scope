@@ -1,15 +1,38 @@
-var sqr=(a,i)->{
-  if(i<1){
-    return 1;
-  }
-  var est=sqr(a,i-1);
-  est=a/est+est;
-  return est/2;
+if(true){
+console.log("hi");
+}
+console.log("LOL");
+var cpow=(obj,p)->{
+var angle=Math.atan2(obj.i,obj.r)*p;
+var len=Math.pow(Math.pow(obj.i*obj.i+obj.r*obj.r,0.5),p);
+return {r:Math.cos(angle)*len,i:Math.sin(angle)*len};
 };
-var ans=sqr(5,100)/2 + (1/2);
-console.log(ans);
-console.log(0.5);
-console.log(Math.pow(2,0.5));
-console.log(Math.E);
-console.log(Math.abs(-1));
-console.log(Math.acos(Math.pow(0.5,0.5))*4);
+var cadd=(a,b)->{
+return {r:a.r+b.r,i:a.i+b.i};
+};
+var mandelbrot=(x,y)->{
+var c={r:x,i:y};
+var z={r:x+0,i:y+0};
+var m=0;
+for(var n=0;n<10;n++){
+  z=cadd(cpow(z,2),c);
+  if(Math.pow(z.i*z.i+z.r*z.r,0.5)<2) {
+    m=n+0;
+  }
+}
+return m>6;
+};
+
+
+var pictureSize=40;
+var xScale=2/3;
+for(var yy=0;yy<pictureSize;yy++){
+var row="";
+  for(var xx=0;xx<(pictureSize/xScale);xx++){
+    var re=(4*xx/pictureSize)*xScale-2;
+    var im=4*yy/pictureSize-2;
+    //console.log(re,im);
+    row=row+(mandelbrot(re,im)?" ":"0");
+  }
+  console.log(row);
+};

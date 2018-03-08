@@ -206,7 +206,8 @@ class Math(Object):
         'cos': StaticNativeFunction(math.cos),
         'cosh': StaticNativeFunction(math.cosh),
         'exp': StaticNativeFunction(math.exp),
-        'pow': NativeFunction(self.pow)}
+        'pow': StaticNativeFunction(pow),
+        'sin': StaticNativeFunction(math.sin)}
 
     def abs(self, this, args):
         return abs(*args)
@@ -224,11 +225,7 @@ class Math(Object):
         return math.asinh(*args)
 
     def cbrt(self, this, args):
-        ar=args+[1/3]
-        return pow(args[0],1/3)
-
-    def pow(self, this, args):
-        return pow(*args)
+        return pow(args[0],1.0/3)
 
 
 class ReferenceError(RuntimeError):
