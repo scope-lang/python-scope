@@ -1,0 +1,9 @@
+# Python, Emacs and OSX garbage
+*.pyc
+.DS_Store
+.#*
+build
+
+# PLY garbage
+_parser_*.py
+parser.out

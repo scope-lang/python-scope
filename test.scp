@@ -1,0 +1,11 @@
+var sqr=(a,i)->{
+  if(i<1){
+    return 1;
+  }
+  var est=sqr(a,i-1);
+  est=a/est+est;
+  return est/2;
+};
+var ans=sqr(5,100)/2 + (1/2);
+console.log(ans);
+console.log(0.5);
