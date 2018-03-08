@@ -9,3 +9,7 @@ var sqr=(a,i)->{
 var ans=sqr(5,100)/2 + (1/2);
 console.log(ans);
 console.log(0.5);
+console.log(Math.pow(2,0.5));
+console.log(Math.E);
+console.log(Math.abs(-1));
+console.log(Math.acos(Math.pow(0.5,0.5))*4);

@@ -1,13 +1,13 @@
 import codecs
 from jspy.parser import Parser
-from jspy.js import Console, ExecutionContext, UNDEFINED
+from jspy.js import Console, Math, ExecutionContext, UNDEFINED
 
 
 __version__ = '1.0'
 
 
 def create_default_global_objects():
-    return {'console': Console()}
+    return {'console': Console(),'Math':Math()}
 
 
 def eval_string(s, global_objects=None):

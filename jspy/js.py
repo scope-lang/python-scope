@@ -1,6 +1,7 @@
 """Module containing basic JavaScript types and objects."""
 from collections import namedtuple
 import sys
+import math
 
 
 UNDEFINED = object()
@@ -162,6 +163,20 @@ class NativeFunction(object):
     def to_python(self):
         return self.f
 
+class StaticNativeFunction(object):
+    """Function implemented in Python, callable from JavaScript code."""
+    def __init__(self, f):
+        self.f = f
+
+    def call(self, this, args,scope=None):
+        return self.f(*args)
+
+    def __repr__(self):
+        return 'NativeFunction(f=%r)' % (self.f)
+
+    def to_python(self):
+        return self.f
+
 
 class Console(Object):
     """Global `console` object, behaving similar to Firebug's one."""
@@ -172,6 +187,48 @@ class Console(Object):
     def log(self, this, args):
         self.out.write(' '.join(str(arg) for arg in args))
         self.out.write('\n')
+
+class Math(Object):
+    """Global `Math` object, behaving similar to JS one."""
+    def __init__(self):
+        self.d = {'E': math.e,
+        'PI': math.pi,
+        'abs': NativeFunction(self.abs),
+        'acos': NativeFunction(self.acos),
+        'acosh': NativeFunction(self.acosh),
+        'asin': NativeFunction(self.asin),
+        'asinh': NativeFunction(self.asinh),
+        'atan': StaticNativeFunction(math.atan),
+        'atanh': StaticNativeFunction(math.atanh),
+        'atan2': StaticNativeFunction(math.atan2),
+        'cbrt': NativeFunction(self.cbrt),
+        'ceil': StaticNativeFunction(math.ceil),
+        'cos': StaticNativeFunction(math.cos),
+        'cosh': StaticNativeFunction(math.cosh),
+        'exp': StaticNativeFunction(math.exp),
+        'pow': NativeFunction(self.pow)}
+
+    def abs(self, this, args):
+        return abs(*args)
+
+    def acos(self, this, args):
+        return math.acos(*args)
+
+    def acosh(self, this, args):
+        return math.acosh(*args)
+
+    def asin(self, this, args):
+        return math.asin(*args)
+
+    def asinh(self, this, args):
+        return math.asinh(*args)
+
+    def cbrt(self, this, args):
+        ar=args+[1/3]
+        return pow(args[0],1/3)
+
+    def pow(self, this, args):
+        return pow(*args)
 
 
 class ReferenceError(RuntimeError):
