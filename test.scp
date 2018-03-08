@@ -10,29 +10,30 @@ return {r:Math.cos(angle)*len,i:Math.sin(angle)*len};
 var cadd=(a,b)->{
 return {r:a.r+b.r,i:a.i+b.i};
 };
+var standard=["$", "@", "B", "%", "8", "&", "W", "M", "#", "*", "o", "a", "h", "k", "b", "d", "p", "q", "w", "m", "Z", "O", "0", "Q", "L", "C", "J", "U", "Y", "X", "z", "c", "v", "u", "n", "x", "r", "j", "f", "t", "/", "|", "(", ")", "1", "{", "}", "[", "]", "?", "-", "_", "+", "~", "<", ">", "i", "!", "l", "I", ";", ":", ",", "\"", "^", "`", "\'", ".", " "];
 var mandelbrot=(x,y)->{
 var c={r:x,i:y};
 var z={r:x+0,i:y+0};
-var m=0;
-for(var n=0;n<10;n++){
+var n=0;
+for(n=0;n<68;n++){
   z=cadd(cpow(z,2),c);
-  if(Math.pow(z.i*z.i+z.r*z.r,0.5)<2) {
-    m=n+0;
+  if(Math.pow(z.i*z.i+z.r*z.r,0.5)>2) {
+    break;
   }
 }
-return m>6;
+return standard[n];
 };
 
 
-var pictureSize=40;
-var xScale=2/3;
+var pictureSize=60;
+var xScale=5/8;
 for(var yy=0;yy<pictureSize;yy++){
 var row="";
   for(var xx=0;xx<(pictureSize/xScale);xx++){
     var re=(4*xx/pictureSize)*xScale-2;
     var im=4*yy/pictureSize-2;
     //console.log(re,im);
-    row=row+(mandelbrot(re,im)?" ":"0");
+    row=row+mandelbrot(re,im);
   }
   console.log(row);
 };
