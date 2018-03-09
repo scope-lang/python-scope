@@ -1,6 +1,6 @@
 import os.path
 import sys
-from StringIO import StringIO
+from io import StringIO
 from jspy.compat import unittest
 from jspy.parser import Parser
 from jspy import ast, js, eval_file
@@ -392,16 +392,16 @@ class TestFile(unittest.TestCase):
 
     def test_object_literal(self):
         result, context = self.eval('object_literal.js')
-        self.assertEqual(result, js.Object({u'season': js.Object({u'episode': js.Array([js.Object({
-                                            u'available': u'true',
-                                            u'episodenumber': u'402',
-                                            u'description': u'...',
-                                            u'tags': u'Tooth Fairy|Cartman|Tits|Kyle|Stan',
-                                            u'url': u'http://www.southparkstudios.com/full-episodes/s04e02-the-tooth-fairy-tats',
-                                            u'title': u'The Tooth Fairy Tats',
-                                            u'when': u'04.05.2000',
-                                            u'thumbnail_190': u'http://example.com/episode_thumbnails/s04e02_480.jpg?width=190',
-                                            u'id': u'103570',
-                                            u'airdate': u'04.05.2000',
-                                            u'thumbnail_larger': u'http://example.com/episode_thumbnails/s04e02_480.jpg?width=63',
-                                            u'thumbnail': u'http://example.com/episode_thumbnails/s04e02_480.jpg?width=55'})])})}))
+        self.assertEqual(result, js.Object({'season': js.Object({'episode': js.Array([js.Object({
+                                            'available': 'true',
+                                            'episodenumber': '402',
+                                            'description': '...',
+                                            'tags': 'Tooth Fairy|Cartman|Tits|Kyle|Stan',
+                                            'url': 'http://www.southparkstudios.com/full-episodes/s04e02-the-tooth-fairy-tats',
+                                            'title': 'The Tooth Fairy Tats',
+                                            'when': '04.05.2000',
+                                            'thumbnail_190': 'http://example.com/episode_thumbnails/s04e02_480.jpg?width=190',
+                                            'id': '103570',
+                                            'airdate': '04.05.2000',
+                                            'thumbnail_larger': 'http://example.com/episode_thumbnails/s04e02_480.jpg?width=63',
+                                            'thumbnail': 'http://example.com/episode_thumbnails/s04e02_480.jpg?width=55'})])})}))

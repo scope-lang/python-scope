@@ -158,7 +158,7 @@ class Parser(object):
         """block_value : LBRACE statement_list_v_opt RBRACE"""
         ls=p[2]
         if len(ls)>0:
-            print(ls[0])
+            print((ls[0]))
             print("VDEAL")
             ls[len(ls)-1]=ast.ReturnStatement(expression=ls[len(ls)-1])
         p[0] = ast.Block(statements=ls)

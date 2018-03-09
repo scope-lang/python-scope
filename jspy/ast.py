@@ -58,7 +58,7 @@ class Node(object):
             kwargs[name] = getattr(self, name)
         for name in self.children:
             kwargs[name] = getattr(self, name)
-        kwargs_repr = ', '.join('%s=%r' % (name, value) for name, value in kwargs.items())
+        kwargs_repr = ', '.join('%s=%r' % (name, value) for name, value in list(kwargs.items()))
         return '%s(%s)' % (self.__class__.__name__, kwargs_repr)
 
     def eval(self, context):
@@ -125,7 +125,7 @@ class ObjectLiteral(Node):
     children = ['items']
 
     def eval(self, context):
-        items = dict((name, js.get_value(e.eval(context))) for name, e in self.items.items())
+        items = dict((name, js.get_value(e.eval(context))) for name, e in list(self.items.items()))
         return js.Object(items=items)
 
 

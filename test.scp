@@ -21,7 +21,12 @@ return standard[n];
 };
 
 
-var pictureSize=60;
+var pictureSize=30;
+var intro=[];
+for(var i=0;i<pictureSize;i++){
+intro[i]="";
+}
+intro[0]="┌ ";
 var xScale=5/8;
 var center={r:0,i:0};
 var zoom=1;//1/0.010696;
@@ -33,6 +38,7 @@ var row="";
     //console.log(re,im);
     row=row+mandelbrot(re,im);
   }
+  row=row+intro[yy];
   console.log(row);
 };
 

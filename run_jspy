@@ -23,15 +23,15 @@ if __name__ == '__main__':
     # Run the file
     result, context = eval_file(args[0])
 
-    print 'Result: %r' % result
+    print('Result: %r' % result)
 
     if options.dump_context:
-        print
-        print 'Context:'
-        print '--------'
-        print
+        print()
+        print('Context:')
+        print('--------')
+        print()
 
         items = sorted(context.env.items())
 
         for name, value in items:
-            print '%s: %r' % (name, value)
+            print('%s: %r' % (name, value))
