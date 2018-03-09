@@ -101,6 +101,13 @@ class Literal(Node):
     def eval(self, context):
         return self.value
 
+class StringLiteral(Node):
+    arguments = ['value']
+
+    def eval(self, context):
+        return js.StringObject(value=self.value)
+    
+
 class ScopeObject(Node):
     arguments = ['obj']
 

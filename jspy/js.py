@@ -93,6 +93,47 @@ class Array(Object):
     def to_python(self):
         return [to_python(value) for key, value in sorted(self.d.items(), key=lambda x: x[0])]
 
+class StringObject(Object):
+    """JavaScript Array as defined in [ECMA-262 15.4]."""
+
+
+    def __init__(self, value=""):
+        self.value=value
+
+    def __getitem__(self, name):
+        if name=="length":
+            return len(self.value)
+        return self.value[int(name)]
+
+    def __setitem__(self, name, value):
+        self.value[int(name)] = value
+
+    def __add__(self,other):
+        return self.value+other
+
+    def __radd__(self,other):
+        return other+self.value
+
+    def get(self, name):
+        try:
+            return self.value[name]
+        except KeyError:
+            return UNDEFINED
+
+    def get_binding_value(self, name):
+        return self[name]
+
+    def set_mutable_binding(self, name, value):
+        self[name] = value
+
+    def __repr__(self):
+        return 'String(%r)' % self.value
+
+    def __str__(self):
+        return self.value
+
+    def to_python(self):
+        return self.value
 
 class Function(object):
     """Function object as defined in [ECMA-262 15.3].

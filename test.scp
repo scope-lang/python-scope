@@ -20,13 +20,26 @@ for(n=0;n<68;n++){
 return standard[n];
 };
 
-
-var pictureSize=30;
+var pictureSize=60;
 var intro=[];
+var infoWidth=80;
+var infoPadding=2;
 for(var i=0;i<pictureSize;i++){
-intro[i]="";
+var line="│";
+for(var j=0;j<infoWidth-2;j++){
+line=line+" ";
 }
-intro[0]="┌ ";
+intro[i]=line+"│";
+}
+intro[0]="┌";
+intro[pictureSize-1]="└";
+for(var j=0;j<infoWidth-2;j++){
+intro[0]=intro[0]+"─";
+intro[pictureSize-1]=intro[pictureSize-1]+"─";
+}
+intro[0]=intro[0]+"┐";
+intro[pictureSize-1]=intro[pictureSize-1]+"┘";
+intro[2]="│               WELCOME              │";
 var xScale=5/8;
 var center={r:0,i:0};
 var zoom=1;//1/0.010696;
@@ -41,8 +54,8 @@ var row="";
   row=row+intro[yy];
   console.log(row);
 };
-
-/*var julia=(x,y)->{
+/*
+var julia=(x,y)->{
 var c={r:-0.19,i:0};//{r:x,i:y};
 var z={r:x+0,i:y+0};
 var n=0;
@@ -66,4 +79,5 @@ var row="";
     row=row+julia(re,im);
   }
   console.log(row);
-};*/
+};
+*/

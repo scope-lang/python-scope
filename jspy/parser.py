@@ -276,7 +276,8 @@ class Parser(object):
                               | array_literal
                               | object_literal
                               | LPAREN expression RPAREN
-                              | literal"""
+                              | literal
+                              | string"""
         if len(p) == 2:
             p[0] = p[1]
         else:
@@ -296,13 +297,15 @@ class Parser(object):
 
     def p_literal(self, p):
         """literal : NUMBER
-                   | STRING
                    | REGEXP
                    | TRUE
                    | FALSE
                    | NULL"""
         p[0] = ast.Literal(value=p[1])
 
+    def p_string(self, p):
+        """string : STRING"""
+        p[0] = ast.StringLiteral(value=p[1])
 
     def p_array_literal(self, p):
         """array_literal : LBRACKET element_list_opt RBRACKET"""
