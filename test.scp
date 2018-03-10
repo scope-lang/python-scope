@@ -22,8 +22,8 @@ return standard[n];
 
 var pictureSize=60;
 var intro=[];
-var infoWidth=80;
-var infoPadding=2;
+var infoWidth=93;
+var infoPadding={x:10,y:6};
 for(var i=0;i<pictureSize;i++){
 var line="│";
 for(var j=0;j<infoWidth-2;j++){
@@ -39,7 +39,82 @@ intro[pictureSize-1]=intro[pictureSize-1]+"─";
 }
 intro[0]=intro[0]+"┐";
 intro[pictureSize-1]=intro[pictureSize-1]+"┘";
-intro[2]="│               WELCOME              │";
+var text=[
+"Welcome to {SCOPE}",
+"",
+"{SCOPE} is a programming language where you can have much more control over where functions are executed than other programming languages",
+"",
+"Defining A Variable:",
+"",
+"var x=1*2*3*4;",
+"",
+"Defining A Function:",
+"",
+"var f=(parameter1,parameter2)->{",
+"    return parameter1+parameter2;",
+"};",
+"",
+"Alternatively A function will return the expression on the last line if there is no semicolon, so f can be defined as:",
+"",
+"var f=(parameter1,parameter2)->{",
+"    parameter1+parameter2",
+"};",
+"",
+"Calling a function is very similar to JavaScript, however {SCOPE} has one more optional parameter",
+"A typical call:",
+"",
+"var q=f(x,1);",
+"",
+"Alternatively the function can be called with curly brackets in front of the parentheses, these signify which scope to run in.",
+"",
+"g{scope}()",
+"",
+"In the above example the scope keyword represents the current scope and if g defined a variable a, then it would exist in this scope even after the call to g ends."
+];
+var cursor={c:infoPadding.x+0,r:infoPadding.y+0};
+var wordLines=[];
+for(var k=0;k<text.length;k++){
+var tLine=text[k];
+var words=[];
+var word="";
+var W=0;
+for(var i=0;i<tLine.length+1;i++){
+  var addIt=i==tLine.length;
+  if(!addIt){
+    addIt=tLine[i]==" ";
+  }
+  if(addIt){
+    //if(word!==""){
+    words[W]=word+"";
+    W++;
+      word="";
+  //  }
+  }else{
+  word=word+tLine[i];
+  }
+}
+wordLines[wordLines.length]=words;
+}
+for(var k=0;k<wordLines.length;k++){
+var words=wordLines[k];
+for(var i=0;i<words.length;i++){
+var word=words[i];
+//console.log(word.length);
+while(((infoWidth-infoPadding.x)<cursor.c+word.length) && (cursor.r<pictureSize-infoPadding.y-1)){
+cursor.c=infoPadding.x;
+cursor.r=cursor.r+1;
+}
+
+for(var j=0;j<word.length;j++){
+
+intro[cursor.r][cursor.c]=word[j];
+cursor.c++;
+}
+cursor.c++;
+}
+cursor.r=cursor.r+1;
+cursor.c=infoPadding.x;
+}
 var xScale=5/8;
 var center={r:0,i:0};
 var zoom=1;//1/0.010696;

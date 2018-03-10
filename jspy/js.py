@@ -2,6 +2,8 @@
 from collections import namedtuple
 import sys
 import math
+import ast
+import re
 
 
 UNDEFINED = object()
@@ -74,30 +76,53 @@ class Array(Object):
     def __init__(self, items=None):
         if items is None:
             items = []
-        super(Array, self).__init__()
+        self.items=[]
         for i, item in enumerate(items):
-            self[float(i)] = item
+            self.items.append(item)
+
+    def __getitem__(self, name):
+        if name=="length":
+            return len(self.items)
+        try:
+            return self.items[int(name)]
+        except KeyError:
+            return UNDEFINED
+
+    def __setitem__(self, name, value):
+        while(int(name)>=len(self.items)):
+            self.items.append(UNDEFINED)
+        self.items[int(name)] = value
+
+    def get(self, name):
+        try:
+            return self.items[name]
+        except KeyError:
+            return UNDEFINED
+
+    def get_binding_value(self, name):
+        return self[name]
+
+    def set_mutable_binding(self, name, value):
+        self[name] = value
 
     def __repr__(self):
-        items = list(sorted((int(float(key)), value) for key, value in self.d.items()))
+        items = list(sorted((int(key), value) for key, value in self.items))
         max_key = items[-1][0] if len(items) > 0 else -1
-        shown_items = [self.get(float(i)) for i in range(0, min(max_key, self.max_repr_len) + 1)]
+        shown_items = [self.get(i) for i in range(0, min(max_key, self.max_repr_len) + 1)]
         return 'Array(%r)' % shown_items
 
     def __str__(self):
-        items = list(sorted((int(float(key)), value) for key, value in self.d.items()))
-        max_key = items[-1][0] if len(items) > 0 else -1
-        shown_items = [self.get(float(i)) for i in range(0, min(max_key, self.max_repr_len) + 1)]
-        return '[%s]' % ', '.join(str(item) for item in shown_items)
+        return '[%s]' % ', '.join(str(item) for item in self.items)
 
     def to_python(self):
-        return [to_python(value) for key, value in sorted(self.d.items(), key=lambda x: x[0])]
+        return [to_python(value) for key, value in sorted(self.items, key=lambda x: x[0])]
 
 class StringObject(Object):
     """JavaScript Array as defined in [ECMA-262 15.4]."""
 
 
     def __init__(self, value=""):
+
         self.value=value
 
     def __getitem__(self, name):
@@ -106,10 +131,12 @@ class StringObject(Object):
         return self.value[int(name)]
 
     def __setitem__(self, name, value):
-        self.value[int(name)] = value
+        #r'''(\"\"\"|\'\'\'|\"|\')((?<!\\)(\\\\)*\\\1|.)*?\1'''
+        self.value = self.value[:int(name)] + value + self.value[1+int(name):]
+        #self.value[int(name)] = value
 
     def __add__(self,other):
-        return self.value+other
+        return StringObject(value=self.value+other)
 
     def __radd__(self,other):
         return other+self.value
@@ -131,6 +158,15 @@ class StringObject(Object):
 
     def __str__(self):
         return self.value
+
+    def __eq__(self, other):
+        if(type(other) != str and type(other) != StringObject):
+            return False
+        if(type(other) == StringObject):
+            return self.value==other.value
+        if(type(other) == str):
+            return self.value==other
+        return False
 
     def to_python(self):
         return self.value
