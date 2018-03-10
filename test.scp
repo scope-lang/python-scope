@@ -26,7 +26,7 @@ var pictureSize=termSize.rows-2;
 var intro=[];
 //console.log(termSize.columns-pictureSize/xScale);
 var infoWidth=termSize.columns-(pictureSize/xScale+2);
-var infoPadding={x:10,y:6};
+var infoPadding={x:1,y:1};
 for(var i=0;i<pictureSize;i++){
 var line="│";
 for(var j=0;j<infoWidth-2;j++){
@@ -106,6 +106,9 @@ var word=words[i];
 while(((infoWidth-infoPadding.x)<cursor.c+word.length) && (cursor.r<pictureSize-infoPadding.y-1)){
 cursor.c=infoPadding.x;
 cursor.r=cursor.r+1;
+}
+if((cursor.r>pictureSize-infoPadding.y-1)){
+break;
 }
 
 for(var j=0;j<word.length;j++){
