@@ -106,7 +106,7 @@ class StringLiteral(Node):
 
     def eval(self, context):
         return js.StringObject(value=self.value)
-    
+
 
 class ScopeObject(Node):
     arguments = ['obj']

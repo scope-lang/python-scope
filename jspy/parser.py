@@ -406,9 +406,9 @@ class Parser(object):
         """call_expression : call_expression LBRACE expression RBRACE
                            | call_expression PERIOD ID"""
         if len(p) == 5:
-            p[0] = ast.PropertyAccesor(obj=p[1], key=p[3])
+            p[0] = ast.PropertyAccess(obj=p[1], key=p[3])
         else:
-            p[0] = ast.PropertyAccesor(obj=p[1], key=ast.Literal(value=p[3]))
+            p[0] = ast.PropertyAccess(obj=p[1], key=ast.Literal(value=p[3]))
 
     def p_arguments(self, p):
         """arguments : LPAREN RPAREN

@@ -4,6 +4,7 @@ import sys
 import math
 import ast
 import re
+from jspy import terminalsize
 
 
 UNDEFINED = object()
@@ -259,11 +260,18 @@ class Console(Object):
     """Global `console` object, behaving similar to Firebug's one."""
     def __init__(self, out=None):
         self.out = out if out is not None else sys.stdout
-        self.d = {'log': NativeFunction(self.log)}
+        self.d = {'log': NativeFunction(self.log),'size':NativeFunction(self.size)}
 
     def log(self, this, args):
         self.out.write(' '.join(str(arg) for arg in args))
         self.out.write('\n')
+    def size(self, this, args):
+        try:
+            tsize=terminalsize.get_terminal_size()
+            print(tsize)
+            return Object(items={"columns":tsize[0],"rows":tsize[1]})
+        except Exception as e:
+            return UNDEFINED
 
 class Math(Object):
     """Global `Math` object, behaving similar to JS one."""

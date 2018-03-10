@@ -6,7 +6,7 @@ return {r:Math.cos(angle)*len,i:Math.sin(angle)*len};
 var cadd=(a,b)->{
 return {r:a.r+b.r,i:a.i+b.i};
 };
-var standard=["@", "$", "B", "%", "8", "&", "W", "M", "#", "*", "o", "a", "h", "k", "b", "d", "p", "q", "w", "m", "Z", "O", "0", "Q", "L", "C", "J", "U", "Y", "X", "z", "c", "v", "u", "n", "x", "r", "j", "f", "t", "/", "|", "(", ")", "1", "{", "}", "[", "]", "?", "-", "_", "+", "~", "<", ">", "i", "!", "l", "I", ";", ":", ",", "\"", "^", "`", "\'", ".", " "];
+var standard=["@", "$", "B", "%", "8", "&", "W", "M", "#", "*", "o", "a", "h", "k", "b", "d", "p", "q", "w", "m", "Z", "O", "0", "Q", "L", "C", "J", "U", "Y", "X", "z", "c", "v", "u", "n", "x", "r", "j", "f", "t", "/", "|", "(", ")", "1", "{", "}", "[", "]", "?", "-", "_", "+", "~", "<", ">", "i", "!", "l", "I", ";", ":", ",", "\"", "^", "`", "'", ".", " "];
 var mandelbrot=(x,y)->{
 var c={r:x,i:y};//{r:-0.2,i:0};//{r:x,i:y};
 var z={r:x+0,i:y+0};
@@ -20,9 +20,12 @@ for(n=0;n<68;n++){
 return standard[n];
 };
 
-var pictureSize=60;
+var termSize=console.size();
+var xScale=5/8;
+var pictureSize=termSize.rows-2;
 var intro=[];
-var infoWidth=93;
+//console.log(termSize.columns-pictureSize/xScale);
+var infoWidth=termSize.columns-(pictureSize/xScale+2);
 var infoPadding={x:10,y:6};
 for(var i=0;i<pictureSize;i++){
 var line="│";
@@ -115,13 +118,13 @@ cursor.c++;
 cursor.r=cursor.r+1;
 cursor.c=infoPadding.x;
 }
-var xScale=5/8;
-var center={r:0,i:0};
-var zoom=1;//1/0.010696;
+
+var center={r:-0.5,i:0};
+var zoom=1.5;//1/0.010696;
 for(var yy=0;yy<pictureSize;yy++){
 var row="";
   for(var xx=0;xx<(pictureSize/xScale);xx++){
-    var re=((4*xx/pictureSize)*xScale-2)/zoom-center.r;
+    var re=((4*xx/pictureSize)*xScale-2)/zoom+center.r;
     var im=(4*yy/pictureSize-2)/zoom+center.i;
     //console.log(re,im);
     row=row+mandelbrot(re,im);
@@ -129,30 +132,3 @@ var row="";
   row=row+intro[yy];
   console.log(row);
 };
-/*
-var julia=(x,y)->{
-var c={r:-0.19,i:0};//{r:x,i:y};
-var z={r:x+0,i:y+0};
-var n=0;
-for(n=0;n<68*2;n++){
-  z=cadd(cpow(z,1.5),c);
-  if(Math.pow(z.i*z.i+z.r*z.r,0.5)>2) {
-    break;
-  }
-}
-return standard[(n%10)*6];
-};
-var s=10;
-var pictureSize=60;
-var xScale=5/8;
-for(var yy=0;yy<pictureSize;yy++){
-var row="";
-  for(var xx=0;xx<(pictureSize/xScale);xx++){
-    var re=((4*xx/pictureSize)*xScale-2)/s-0.536264;
-    var im=(4*yy/pictureSize-2)/s;
-    //console.log(re,im);
-    row=row+julia(re,im);
-  }
-  console.log(row);
-};
-*/
