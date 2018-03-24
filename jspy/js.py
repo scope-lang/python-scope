@@ -6,7 +6,6 @@ import ast
 import re
 from jspy import terminalsize
 
-
 UNDEFINED = object()
 EMPTY = object()
 NORMAL = object()
@@ -34,6 +33,7 @@ def to_python(value):
 
 class Object(object):
     """JavaScript Object as defined in [ECMA-262 8.6]."""
+
     def __init__(self, items=None):
         if items is None:
             items = {}
@@ -77,12 +77,12 @@ class Array(Object):
     def __init__(self, items=None):
         if items is None:
             items = []
-        self.items=[]
+        self.items = []
         for i, item in enumerate(items):
             self.items.append(item)
 
     def __getitem__(self, name):
-        if name=="length":
+        if name == "length":
             return len(self.items)
         try:
             return self.items[int(name)]
@@ -90,7 +90,7 @@ class Array(Object):
             return UNDEFINED
 
     def __setitem__(self, name, value):
-        while(int(name)>=len(self.items)):
+        while (int(name) >= len(self.items)):
             self.items.append(UNDEFINED)
         self.items[int(name)] = value
 
@@ -109,38 +109,44 @@ class Array(Object):
     def __repr__(self):
         items = list(sorted((int(key), value) for key, value in self.items))
         max_key = items[-1][0] if len(items) > 0 else -1
-        shown_items = [self.get(i) for i in range(0, min(max_key, self.max_repr_len) + 1)]
+        shown_items = [
+            self.get(i) for i in range(0,
+                                       min(max_key, self.max_repr_len) + 1)
+        ]
         return 'Array(%r)' % shown_items
 
     def __str__(self):
         return '[%s]' % ', '.join(str(item) for item in self.items)
 
     def to_python(self):
-        return [to_python(value) for key, value in sorted(self.items, key=lambda x: x[0])]
+        return [
+            to_python(value)
+            for key, value in sorted(self.items, key=lambda x: x[0])
+        ]
+
 
 class StringObject(Object):
     """JavaScript Array as defined in [ECMA-262 15.4]."""
 
-
     def __init__(self, value=""):
 
-        self.value=value
+        self.value = value
 
     def __getitem__(self, name):
-        if name=="length":
+        if name == "length":
             return len(self.value)
         return self.value[int(name)]
 
     def __setitem__(self, name, value):
         #r'''(\"\"\"|\'\'\'|\"|\')((?<!\\)(\\\\)*\\\1|.)*?\1'''
-        self.value = self.value[:int(name)] + value + self.value[1+int(name):]
+        self.value = self.value[:int(name)] + value + self.value[1 + int(name):]
         #self.value[int(name)] = value
 
-    def __add__(self,other):
-        return StringObject(value=self.value+other)
+    def __add__(self, other):
+        return StringObject(value=self.value + other)
 
-    def __radd__(self,other):
-        return other+self.value
+    def __radd__(self, other):
+        return other + self.value
 
     def get(self, name):
         try:
@@ -161,35 +167,37 @@ class StringObject(Object):
         return self.value
 
     def __eq__(self, other):
-        if(type(other) != str and type(other) != StringObject):
+        if (type(other) != str and type(other) != StringObject):
             return False
-        if(type(other) == StringObject):
-            return self.value==other.value
-        if(type(other) == str):
-            return self.value==other
+        if (type(other) == StringObject):
+            return self.value == other.value
+        if (type(other) == str):
+            return self.value == other
         return False
 
     def to_python(self):
         return self.value
 
+
 class Function(object):
     """Function object as defined in [ECMA-262 15.3].
 
     Algorithm for creating Function objects is in [ECMA-262 13.2]."""
+
     def __init__(self, parameters, body, scope):
         self.parameters = parameters
         self.body = body
         self.scope = scope
         self.horizontal = None
-        self.declared_vars = []#body.get_declared_vars()
+        self.declared_vars = []  #body.get_declared_vars()
 
-    def call(self, this, args,scope=None):
+    def call(self, this, args, scope=None):
         """Internal [[Call]] method of Function object.
 
         See [ECMA-262 13.2.1] for a basic algorithm."""
-        if(not(scope==None)):
+        if (not (scope == None)):
             #print("SCOPEPEPEP")
-            self.horizontal=scope
+            self.horizontal = scope
             function_context = self.prepare_function_context(args)
             result = self.body.eval(function_context)
             if result.type is RETURN:
@@ -208,9 +216,11 @@ class Function(object):
                 return UNDEFINED
 
     def prepare_function_context(self, args):
-        local_vars_dict = dict((name, UNDEFINED) for name in self.declared_vars)
+        local_vars_dict = dict(
+            (name, UNDEFINED) for name in self.declared_vars)
         local_vars_dict.update(self.prepare_args_dict(args))
-        return ExecutionContext(local_vars_dict, parent=self.scope,horizontal=self.horizontal)
+        return ExecutionContext(
+            local_vars_dict, parent=self.scope, horizontal=self.horizontal)
 
     def prepare_args_dict(self, args):
         result = {'arguments': args}
@@ -229,10 +239,11 @@ class Function(object):
 
 class NativeFunction(object):
     """Function implemented in Python, callable from JavaScript code."""
+
     def __init__(self, f):
         self.f = f
 
-    def call(self, this, args,scope=None):
+    def call(self, this, args, scope=None):
         return self.f(this, args)
 
     def __repr__(self):
@@ -241,12 +252,14 @@ class NativeFunction(object):
     def to_python(self):
         return self.f
 
+
 class StaticNativeFunction(object):
     """Function implemented in Python, callable from JavaScript code."""
+
     def __init__(self, f):
         self.f = f
 
-    def call(self, this, args,scope=None):
+    def call(self, this, args, scope=None):
         return self.f(*args)
 
     def __repr__(self):
@@ -258,41 +271,50 @@ class StaticNativeFunction(object):
 
 class Console(Object):
     """Global `console` object, behaving similar to Firebug's one."""
+
     def __init__(self, out=None):
         self.out = out if out is not None else sys.stdout
-        self.d = {'log': NativeFunction(self.log),'size':NativeFunction(self.size)}
+        self.d = {
+            'log': NativeFunction(self.log),
+            'size': NativeFunction(self.size)
+        }
 
     def log(self, this, args):
         self.out.write(' '.join(str(arg) for arg in args))
         self.out.write('\n')
+
     def size(self, this, args):
         try:
-            tsize=terminalsize.get_terminal_size()
+            tsize = terminalsize.get_terminal_size()
             print(tsize)
-            return Object(items={"columns":tsize[0],"rows":tsize[1]})
-        except Exception as e:
+            return Object(items={"columns": tsize[0], "rows": tsize[1]})
+        except Exception:
             return UNDEFINED
+
 
 class Math(Object):
     """Global `Math` object, behaving similar to JS one."""
+
     def __init__(self):
-        self.d = {'E': math.e,
-        'PI': math.pi,
-        'abs': NativeFunction(self.abs),
-        'acos': NativeFunction(self.acos),
-        'acosh': NativeFunction(self.acosh),
-        'asin': NativeFunction(self.asin),
-        'asinh': NativeFunction(self.asinh),
-        'atan': StaticNativeFunction(math.atan),
-        'atanh': StaticNativeFunction(math.atanh),
-        'atan2': StaticNativeFunction(math.atan2),
-        'cbrt': NativeFunction(self.cbrt),
-        'ceil': StaticNativeFunction(math.ceil),
-        'cos': StaticNativeFunction(math.cos),
-        'cosh': StaticNativeFunction(math.cosh),
-        'exp': StaticNativeFunction(math.exp),
-        'pow': NativeFunction(self.pow),
-        'sin': StaticNativeFunction(math.sin)}
+        self.d = {
+            'E': math.e,
+            'PI': math.pi,
+            'abs': NativeFunction(self.abs),
+            'acos': NativeFunction(self.acos),
+            'acosh': NativeFunction(self.acosh),
+            'asin': NativeFunction(self.asin),
+            'asinh': NativeFunction(self.asinh),
+            'atan': StaticNativeFunction(math.atan),
+            'atanh': StaticNativeFunction(math.atanh),
+            'atan2': StaticNativeFunction(math.atan2),
+            'cbrt': NativeFunction(self.cbrt),
+            'ceil': StaticNativeFunction(math.ceil),
+            'cos': StaticNativeFunction(math.cos),
+            'cosh': StaticNativeFunction(math.cosh),
+            'exp': StaticNativeFunction(math.exp),
+            'pow': NativeFunction(self.pow),
+            'sin': StaticNativeFunction(math.sin)
+        }
 
     def abs(self, this, args):
         return abs(*args)
@@ -310,12 +332,12 @@ class Math(Object):
         return math.asinh(*args)
 
     def cbrt(self, this, args):
-        return pow(args[0],1.0/3)
+        return pow(args[0], 1.0 / 3)
 
     def pow(self, this, args):
-        if args[0]==0 and args[1]<0:
-            return float("inf");
-        return pow(args[0],args[1])
+        if args[0] == 0 and args[1] < 0:
+            return float("inf")
+        return pow(args[0], args[1])
 
 
 class ReferenceError(RuntimeError):
@@ -323,7 +345,7 @@ class ReferenceError(RuntimeError):
 
 
 class ExecutionContext(object):
-    def __init__(self, env, parent=None,horizontal=None):
+    def __init__(self, env, parent=None, horizontal=None):
         assert isinstance(env, dict)
         self.env = env
         self.parent = parent
@@ -336,7 +358,7 @@ class ExecutionContext(object):
             if self.parent is None and self.horizontal is None:
                 return UNDEFINED
                 #raise ReferenceError('Reference %r not found in %r' % (name, self))
-            if not(self.horizontal is None) and (name in self.horizontal):
+            if not (self.horizontal is None) and (name in self.horizontal):
                 return self.horizontal[name]
             return self.parent[name]
 
@@ -344,46 +366,49 @@ class ExecutionContext(object):
         self.env[name] = value
 
     def __contains__(self, name):
-        return name in self.env or ((self.parent is not None) and name in self.parent) or ((self.horizontal is not None) and name in self.horizontal)
+        return name in self.env or (
+            (self.parent is not None) and name in self.parent) or (
+                (self.horizontal is not None) and name in self.horizontal)
 
     def get_binding_value(self, name):
         #print("GETTING",name)
         if name not in self.env:
-            if not(self.horizontal is None) and (name in self.horizontal):
+            if not (self.horizontal is None) and (name in self.horizontal):
                 return self.horizontal.get_binding_value(name)
             else:
-                if not(self.parent is None) and (name in self.parent):
+                if not (self.parent is None) and (name in self.parent):
                     return self.parent.get_binding_value(name)
         #else:
-            #print("GETTING (FOUND)",name)
+        #print("GETTING (FOUND)",name)
         return self[name]
 
     def set_mutable_binding(self, name, value):
         if name not in self.env:
-            if not(self.horizontal is None) and (name in self.horizontal):
-                self.horizontal.set_mutable_binding(name,value)
+            if not (self.horizontal is None) and (name in self.horizontal):
+                self.horizontal.set_mutable_binding(name, value)
             else:
-                if not(self.parent is None) and (name in self.parent):
-                    self.parent.set_mutable_binding(name,value)
+                if not (self.parent is None) and (name in self.parent):
+                    self.parent.set_mutable_binding(name, value)
                 else:
-                    if not(self.horizontal is None):
-                        self.horizontal.set_mutable_binding(name,value)
+                    if not (self.horizontal is None):
+                        self.horizontal.set_mutable_binding(name, value)
                     else:
                         self.env[name] = value
 
-
-        else:#print("HAVE:",name,self.env[name])
+        else:  #print("HAVE:",name,self.env[name])
             self.env[name] = value
 
     def get_this_reference(self):
         return self['this']
 
     def __repr__(self):
-        return 'ExecutionContext(%r, parent=%r, horizontal=%r)' % (self.env, self.parent,self.horizontal)
+        return 'ExecutionContext(%r, parent=%r, horizontal=%r)' % (
+            self.env, self.parent, self.horizontal)
 
 
 class Reference(object):
     """JavaScript reference specification type as defined in [ECMA-262 8.7]."""
+
     def __init__(self, name, base):
         self.name = name
         self.base = base
@@ -431,4 +456,5 @@ def put_value(obj, value):
     if isinstance(obj, Reference):
         obj.put_value(value)
     else:
-        raise ReferenceError("Can't put a value of non-reference object %r" % obj)
+        raise ReferenceError(
+            "Can't put a value of non-reference object %r" % obj)

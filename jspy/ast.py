@@ -48,9 +48,12 @@ class Node(object):
     def __eq__(self, other):
         if self.__class__ is not other.__class__:
             return False
-        return (self.arguments == other.arguments and self.children == other.children
-                and all(getattr(self, name) == getattr(other, name) for name in self.arguments)
-                and all(getattr(self, name) == getattr(other, name) for name in self.children))
+        return (self.arguments == other.arguments
+                and self.children == other.children and all(
+                    getattr(self, name) == getattr(other, name)
+                    for name in self.arguments) and all(
+                        getattr(self, name) == getattr(other, name)
+                        for name in self.children))
 
     def __repr__(self):
         kwargs = {}
@@ -58,7 +61,8 @@ class Node(object):
             kwargs[name] = getattr(self, name)
         for name in self.children:
             kwargs[name] = getattr(self, name)
-        kwargs_repr = ', '.join('%s=%r' % (name, value) for name, value in list(kwargs.items()))
+        kwargs_repr = ', '.join(
+            '%s=%r' % (name, value) for name, value in list(kwargs.items()))
         return '%s(%s)' % (self.__class__.__name__, kwargs_repr)
 
     def eval(self, context):
@@ -81,12 +85,14 @@ class This(Node):
     def eval(self, context):
         return context.get_this_reference()
 
+
 class Scope(Node):
     """The this keyword evaluates to the value of the current execution context."""
 
     def eval(self, context):
         #print ("scope eval")
         return context
+
 
 class Identifier(Node):
     arguments = ['name']
@@ -101,6 +107,7 @@ class Literal(Node):
     def eval(self, context):
         return self.value
 
+
 class StringLiteral(Node):
     arguments = ['value']
 
@@ -114,25 +121,28 @@ class ScopeObject(Node):
     def eval(self, context):
         return self.obj.eval(context)
 
+
 class ArrayLiteral(Node):
     children = ['items']
 
     def eval(self, context):
         items = [self.get_item_value(item, context) for item in self.items]
         # Elision: remove last item if it's undefined
-        if len(items) > 0  and items[-1] is js.UNDEFINED:
+        if len(items) > 0 and items[-1] is js.UNDEFINED:
             items.pop()
         return js.Array(items=items)
 
     def get_item_value(self, item, context):
-        return js.get_value(item.eval(context)) if item is not None else js.UNDEFINED
+        return js.get_value(
+            item.eval(context)) if item is not None else js.UNDEFINED
 
 
 class ObjectLiteral(Node):
     children = ['items']
 
     def eval(self, context):
-        items = dict((name, js.get_value(e.eval(context))) for name, e in list(self.items.items()))
+        items = dict((name, js.get_value(e.eval(context)))
+                     for name, e in list(self.items.items()))
         return js.Object(items=items)
 
 
@@ -154,14 +164,19 @@ class Constructor(Node):
 
 
 class FunctionCall(Node):
-    children = ['obj', 'argumentss','scope']
+    children = ['obj', 'argumentss', 'scope']
 
     def eval(self, context):
         f = js.get_value(self.obj.eval(context))
         s = None
-        if (not(self.scope==None)):
-            s=js.get_value(self.scope.eval(context))
-        return f.call(None, [js.get_value(argument.eval(context)) for argument in self.argumentss],scope=s)
+        if (not (self.scope == None)):
+            s = js.get_value(self.scope.eval(context))
+        return f.call(
+            None, [
+                js.get_value(argument.eval(context))
+                for argument in self.argumentss
+            ],
+            scope=s)
 
 
 class UnaryOp(Node):
@@ -287,8 +302,7 @@ class Assignment(Node):
             js.put_value(ref, value)
             return value
         else:
-            new_value = perform_binary_op(self.op[:-1],
-                                          js.get_value(ref),
+            new_value = perform_binary_op(self.op[:-1], js.get_value(ref),
                                           value)
             js.put_value(ref, new_value)
             return new_value
@@ -320,7 +334,7 @@ class Block(Node):
         return result
 
     def get_declared_vars(self):
-        return []#set_union(s.get_declared_vars() for s in self.statements)
+        return []  #set_union(s.get_declared_vars() for s in self.statements)
 
 
 class VariableDeclarationList(Node):
@@ -381,7 +395,7 @@ class WhileStatement(Node):
 
     def eval(self, context):
         result_value = js.EMPTY
-        cntx=js.ExecutionContext(dict(), parent=context)
+        cntx = js.ExecutionContext(dict(), parent=context)
         while True:
             condition_value = js.get_value(self.condition.eval(cntx))
             if not condition_value:
@@ -397,11 +411,12 @@ class WhileStatement(Node):
     def get_declared_vars(self):
         return self.statement.get_declared_vars()
 
+
 class ForStatement(Node):
     children = ['first', 'condition', 'then', 'statement']
 
     def eval(self, context):
-        cntx=js.ExecutionContext(dict(), parent=context)
+        cntx = js.ExecutionContext(dict(), parent=context)
         result_value = js.EMPTY
         firstst = self.first.eval(cntx)
         while True:
@@ -461,12 +476,10 @@ class ReturnStatement(Node):
         if self.expression is None:
             return js.Completion(js.RETURN, js.UNDEFINED, js.EMPTY)
         else:
-            item=self.expression.eval(context)
+            item = self.expression.eval(context)
             if type(item) is js.Completion:
-                item=item.value
-            return js.Completion(js.RETURN,
-                                 item,
-                                 js.EMPTY)
+                item = item.value
+            return js.Completion(js.RETURN, item, js.EMPTY)
 
 
 class DebuggerStatement(Node):
@@ -483,9 +496,10 @@ class FunctionDefinition(Node):
     children = ['parameters', 'body']
 
     def eval(self, context):
-        return js.Function(parameters=self.get_parameter_names(context),
-                           body=self.body,
-                           scope=context)
+        return js.Function(
+            parameters=self.get_parameter_names(context),
+            body=self.body,
+            scope=context)
 
     def get_parameter_names(self, context):
         if self.parameters is None:

@@ -158,8 +158,8 @@ class Parser(object):
         """block_value : LBRACE statement_list_v_opt RBRACE"""
         ls=p[2]
         if len(ls)>0:
-            print((ls[0]))
-            print("VDEAL")
+            #print((ls[0]))
+            #print("VDEAL")
             ls[len(ls)-1]=ast.ReturnStatement(expression=ls[len(ls)-1])
         p[0] = ast.Block(statements=ls)
         #print("value deal")
@@ -172,9 +172,18 @@ class Parser(object):
 
     def p_variable_declaration_list(self, p):
         """variable_declaration_list : variable_declaration
-                                     | variable_declaration_list COMMA variable_declaration"""
+                                     | variable_declaration_list COMMA variable_declaration
+                                     | LPAREN variable_group RPAREN LARROW LPAREN assigment_group RPAREN"""
         if len(p) == 2:
             p[0] = [p[1]]
+        elif len(p) == 8:
+            ret=[]
+            for x in range(len(p[2])):
+                if x<len(p[6]):
+                    ret.append(ast.VariableDeclaration(identifier=p[2][x], initialiser=p[6][x]))
+                else:
+                    ret.append(ast.VariableDeclaration(identifier=p[2][x], initialiser=None))
+            p[0] = ret
         else:
             p[0] = p[1] + [p[3]]
 
@@ -185,6 +194,22 @@ class Parser(object):
             p[0] = ast.VariableDeclaration(identifier=p[1], initialiser=None)
         else:
             p[0] = ast.VariableDeclaration(identifier=p[1], initialiser=p[3])
+
+    def p_variable_group(self, p):
+        """variable_group : identifier
+                          | identifier variable_group"""
+        if len(p) == 2:
+            p[0] = [p[1]]
+        else:
+            p[0] = [p[1]]+p[2]
+
+    def p_assigment_group(self, p):
+        """assigment_group : assignment_expression
+                           | assignment_expression assigment_group"""
+        if len(p) == 2:
+            p[0] = [p[1]]
+        else:
+            p[0] = [p[1]]+p[2]
 
     #
     # [ECMA-262 12.3] Empty Statement

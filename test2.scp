@@ -1,9 +1,2 @@
-var main=()->{
-  var g=()->{
-    var a=1;
-  }
-
-  g{scope}();
-  console.log(a);
-}
-main();
+p=212;
+console.log(p,q);
